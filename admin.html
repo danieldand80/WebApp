@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פאנל ניהול - Liron Shop Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .upload-section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-box {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+            margin-bottom: 20px;
+        }
+
+        .upload-box:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-box.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-box p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .upload-box small {
+            color: #999;
+            font-size: 13px;
+        }
+
+        #videoFile {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .products-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .products-section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .product-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.1);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .product-info h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-info .product-price {
+            font-size: 24px;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #f0f2ff;
+            color: #667eea;
+        }
+
+        .btn-edit:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #fff0f0;
+            color: #ff4757;
+        }
+
+        .btn-delete:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .product-video-link {
+            color: #667eea;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .product-video-link:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 968px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>🎬 פאנל ניהול - Liron Shop</h1>
+            <p>העלה ועדכן מוצרים בקלות</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertBox" class="alert"></div>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>📤 העלאת מוצר חדש</h2>
+                
+                <form id="uploadForm">
+                    <!-- Video Upload -->
+                    <div class="upload-box" id="uploadBox">
+                        <div class="upload-icon">🎥</div>
+                        <p><strong>גרור ושחרר וידאו כאן</strong></p>
+                        <p>או</p>
+                        <small>לחץ לבחירת קובץ (MP4, 9:16)</small>
+                    </div>
+                    <input type="file" id="videoFile" accept="video/mp4,video/quicktime" required>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="form-group">
+                        <label>🏷️ שם המוצר</label>
+                        <input type="text" id="productTitle" placeholder="לדוגמה: מכונת גלידה ביתית" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 תיאור המוצר</label>
+                        <textarea id="productDescription" placeholder="תאר את המוצר בקצרה..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💰 מחיר</label>
+                        <input type="text" id="productPrice" placeholder="₪299" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔗 קישור לרכישה</label>
+                        <input type="url" id="productLink" placeholder="https://example.com/product" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        ✨ העלה מוצר
+                    </button>
+                </form>
+            </div>
+
+            <!-- Products List -->
+            <div class="products-section">
+                <h2>📦 מוצרים קיימים (<span id="productCount">0</span>)</h2>
+                <div id="productsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check auth on page load
+        const isLoggedIn = sessionStorage.getItem('adminAuth');
+        const authTime = sessionStorage.getItem('adminAuthTime');
+        const ONE_HOUR = 60 * 60 * 1000;
+        
+        if (!isLoggedIn || !authTime) {
+            window.location.href = '/admin';
+        } else {
+            const elapsed = Date.now() - parseInt(authTime);
+            if (elapsed >= ONE_HOUR) {
+                sessionStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminAuthTime');
+                alert('Session expired. Please login again.');
+                window.location.href = '/admin';
+            }
+        }
+        
+        // Add logout button
+        window.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.admin-header');
+            const logoutBtn = document.createElement('button');
+            logoutBtn.innerHTML = '🚪 יציאה';
+            logoutBtn.style.cssText = `
+                position: absolute;
+                top: 30px;
+                left: 30px;
+                padding: 10px 20px;
+                background: #ff4757;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            `;
+            logoutBtn.addEventListener('mouseover', () => {
+                logoutBtn.style.background = '#ff3838';
+            });
+            logoutBtn.addEventListener('mouseout', () => {
+                logoutBtn.style.background = '#ff4757';
+            });
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('האם אתה בטוח שברצונך לצאת?')) {
+                    sessionStorage.removeItem('adminAuth');
+                    sessionStorage.removeItem('adminAuthTime');
+                    window.location.href = '/';
+                }
+            });
+            header.style.position = 'relative';
+            header.appendChild(logoutBtn);
+        });
+    </script>
+    <script src="admin.js"></script>
+</body>
+</html>
+
+

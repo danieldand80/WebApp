@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כניסת מנהל - Liron Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            direction: ltr;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ff4757;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .back-link {
+            margin-top: 25px;
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 40px 25px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .login-icon {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-icon">🔐</div>
+        <h1>פאנל ניהול</h1>
+        <p>אזור מוגן למנהלים בלבד</p>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">🔑 סיסמה</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="הזן סיסמה"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                כניסה לפאנל ניהול
+            </button>
+        </form>
+        
+        <a href="/" class="back-link">← חזרה לאתר הראשי</a>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        const CORRECT_PASSWORD = 'Liron3214';
+        const MAX_ATTEMPTS = 5;
+        let attempts = 0;
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = passwordInput.value;
+            
+            if (attempts >= MAX_ATTEMPTS) {
+                showError('נחסמת עקב ניסיונות כושלים רבים מדי');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'מאמת...';
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            if (password === CORRECT_PASSWORD) {
+                // Success! Save session
+                sessionStorage.setItem('adminAuth', 'true');
+                sessionStorage.setItem('adminAuthTime', Date.now());
+                
+                showSuccess();
+                
+                setTimeout(() => {
+                    window.location.href = '/admin-panel';
+                }, 1000);
+            } else {
+                attempts++;
+                const remaining = MAX_ATTEMPTS - attempts;
+                
+                if (remaining > 0) {
+                    showError(`❌ סיסמה שגויה! נותרו ${remaining} ניסיונות`);
+                } else {
+                    showError('❌ נחסמת! רענן את הדף כדי לנסות שוב');
+                    passwordInput.disabled = true;
+                }
+                
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'כניסה לפאנל ניהול';
+        });
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+        
+        function showSuccess() {
+            errorMessage.style.background = '#2ecc71';
+            errorMessage.textContent = '✅ סיסמה נכונה! מעביר...';
+            errorMessage.classList.add('show');
+        }
+        
+        // Auto-focus on password field
+        passwordInput.focus();
+        
+        // Check if already logged in
+        const isLoggedIn = sessionStorage.getItem('adminAuth');
+        const authTime = sessionStorage.getItem('adminAuthTime');
+        const ONE_HOUR = 60 * 60 * 1000;
+        
+        if (isLoggedIn && authTime) {
+            const elapsed = Date.now() - parseInt(authTime);
+            if (elapsed < ONE_HOUR) {
+                // Still valid, redirect
+                window.location.href = '/admin-panel';
+            } else {
+                // Expired
+                sessionStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminAuthTime');
+            }
+        }
+    </script>
+</body>
+</html>
+
+

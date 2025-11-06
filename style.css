@@ -1,0 +1,951 @@
+/* ============================
+   Reset & Base Styles
+   ============================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #FF385C;
+    --secondary-color: #FF6B88;
+    --text-dark: #222222;
+    --text-light: #717171;
+    --bg-white: #FFFFFF;
+    --shadow: rgba(0, 0, 0, 0.12);
+    --overlay: rgba(0, 0, 0, 0.3);
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    background: #000;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+}
+
+/* ============================
+   App Container (TikTok Style)
+   ============================ */
+.app-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    background: #000;
+}
+
+/* ============================
+   Video Slider (VERTICAL)
+   ============================ */
+.video-slider {
+    width: 100%;
+    max-width: calc(100vh * 9 / 16); /* 9:16 aspect ratio */
+    height: 100vh;
+    margin: 0 auto;
+    position: relative;
+}
+
+.product-slide {
+    width: 100%;
+    height: 100vh;
+    flex-shrink: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(0.95);
+}
+
+.product-slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1);
+    z-index: 10;
+}
+
+.product-slide.next-slide {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+}
+
+.product-slide.prev-slide {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.9);
+}
+
+/* Mobile - full width */
+@media (max-width: 768px) {
+    .video-slider {
+        max-width: 100%;
+    }
+}
+
+/* ============================
+   Video Container (Full Screen)
+   ============================ */
+.video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.product-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Video Overlay Controls */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.video-container:hover .video-overlay {
+    opacity: 1;
+}
+
+.product-video:not([data-playing="true"]) ~ .video-overlay {
+    opacity: 1;
+}
+
+.play-pause-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.play-pause-btn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.play-pause-btn svg {
+    width: 36px;
+    height: 36px;
+}
+
+/* ============================
+   Product Info Section (Bottom Overlay)
+   ============================ */
+.product-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+    padding: 80px 25px 35px;
+    z-index: 20;
+    color: white;
+    pointer-events: none;
+}
+
+.product-info > * {
+    pointer-events: all;
+}
+
+.product-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+    line-height: 1.3;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.product-description {
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.6;
+    margin-bottom: 15px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.product-price {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFD700;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+}
+
+/* ============================
+   Purchase Button (SUPER PROMINENT!)
+   ============================ */
+.purchase-btn {
+    display: none !important;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 10px 30px rgba(255, 56, 92, 0.6);
+    }
+    50% {
+        box-shadow: 0 15px 40px rgba(255, 56, 92, 0.8);
+    }
+}
+
+.purchase-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.7s ease;
+}
+
+.purchase-btn:hover::before {
+    left: 100%;
+}
+
+.purchase-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 45px rgba(255, 56, 92, 0.7);
+}
+
+.purchase-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.purchase-btn svg {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.purchase-btn:hover svg {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* Scroll indicators removed - navigation only via like/dislike */
+
+/* ============================
+   Mobile Optimization
+   ============================ */
+@media (max-width: 768px) {
+    .product-title {
+        font-size: 24px;
+    }
+    
+    .product-description {
+        font-size: 16px;
+    }
+    
+    .product-price {
+        font-size: 28px;
+    }
+    
+    .purchase-btn {
+        font-size: 22px;
+        padding: 18px 40px;
+    }
+    
+    .play-pause-btn {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .play-pause-btn svg {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .product-info {
+        padding: 60px 20px 30px;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .product-title {
+        font-size: 22px;
+    }
+    
+    .product-description {
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+    
+    .product-price {
+        font-size: 26px;
+        margin-bottom: 15px;
+    }
+    
+    .purchase-btn {
+        font-size: 20px;
+        padding: 16px 35px;
+    }
+    
+    .purchase-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .product-info {
+        padding: 50px 15px 25px;
+    }
+}
+
+/* ============================
+   Landscape Mode
+   ============================ */
+@media (orientation: landscape) and (max-height: 600px) {
+    .product-info {
+        padding: 40px 20px 20px;
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 60%, transparent 100%);
+    }
+    
+    .product-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+    
+    .product-description {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .product-price {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+    
+    .purchase-btn {
+        padding: 12px 30px;
+        font-size: 18px;
+    }
+}
+
+/* ============================
+   Scroll Snap (for smooth scrolling)
+   ============================ */
+.app-container.snap-mode {
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.app-container.snap-mode .video-slider {
+    transition: none;
+}
+
+/* ============================
+   Loading State
+   ============================ */
+.product-video:not([src]) {
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ============================
+   Accessibility
+   ============================ */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .video-slider {
+        scroll-behavior: auto;
+    }
+}
+
+/* ============================
+   Touch feedback
+   ============================ */
+.purchase-btn:active {
+    filter: brightness(0.9);
+}
+
+/* Prevent text selection during swipe */
+.product-slide {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Allow text selection for product info */
+.product-title,
+.product-description {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* ============================
+   Loading Screen
+   ============================ */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #FF385C;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-screen p {
+    color: white;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+/* ============================
+   Empty State (Full Screen)
+   ============================ */
+.empty-state-full {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+}
+
+/* ============================
+   Like/Dislike Action Buttons (Tinder style)
+   ============================ */
+.action-buttons {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: calc(100vh * 9 / 16);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 150;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        max-width: 100%;
+    }
+}
+
+.action-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    pointer-events: all;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.action-btn svg {
+    width: 35px;
+    height: 35px;
+}
+
+.dislike-btn {
+    background: rgba(255, 69, 58, 0.9);
+    color: white;
+}
+
+.dislike-btn:hover {
+    background: rgba(255, 69, 58, 1);
+    transform: scale(1.1);
+}
+
+.dislike-btn:active {
+    transform: scale(0.95);
+}
+
+.like-btn {
+    background: rgba(52, 199, 89, 0.9);
+    color: white;
+}
+
+.like-btn:hover {
+    background: rgba(52, 199, 89, 1);
+    transform: scale(1.1);
+}
+
+.like-btn:active {
+    transform: scale(0.95);
+}
+
+/* ============================
+   Swipe Indicators (Overlay when swiping) - CENTERED
+   ============================ */
+.swipe-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 140;
+    pointer-events: none;
+}
+
+.like-indicator {
+    color: #52C75B;
+}
+
+.dislike-indicator {
+    color: #FF453A;
+}
+
+.swipe-indicator.active {
+    opacity: 1;
+}
+
+.indicator-icon {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.indicator-icon svg {
+    width: 60px;
+    height: 60px;
+}
+
+.swipe-indicator span {
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    background: currentColor;
+    padding: 10px 25px;
+    border-radius: 25px;
+    color: white;
+}
+
+.like-indicator span {
+    background: #52C75B;
+}
+
+.dislike-indicator span {
+    background: #FF453A;
+}
+
+/* ============================
+   Favorites Button (Top Right)
+   ============================ */
+.favorites-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 150;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.favorites-btn:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: scale(1.1);
+}
+
+.favorites-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: white;
+}
+
+.favorites-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #FF385C;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    box-shadow: 0 2px 8px rgba(255,56,92,0.5);
+}
+
+.favorites-count:empty {
+    display: none;
+}
+
+/* ============================
+   Favorites Modal
+   ============================ */
+.favorites-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.favorites-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 25px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 24px;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.close-modal-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #f5f5f5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    background: #e0e0e0;
+}
+
+.close-modal-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-dark);
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.empty-state svg {
+    width: 80px;
+    height: 80px;
+    fill: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.empty-state span {
+    font-size: 16px;
+    color: var(--text-light);
+}
+
+/* Favorites Grid */
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.favorite-item {
+    background: #f9f9f9;
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.favorite-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.favorite-item-header {
+    padding: 15px;
+    background: white;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.favorite-item h3 {
+    font-size: 18px;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+
+.favorite-item-price {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.remove-favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.remove-favorite-btn:hover {
+    color: #FF453A;
+}
+
+.remove-favorite-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.favorite-item-link {
+    display: block;
+    padding: 15px;
+    background: var(--primary-color);
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.favorite-item-link:hover {
+    background: var(--secondary-color);
+}
+
+/* ============================
+   Mobile Adjustments for New Elements
+   ============================ */
+@media (max-width: 768px) {
+    .action-btn {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .action-btn svg {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .swipe-indicator {
+        gap: 8px;
+    }
+    
+    .indicator-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .indicator-icon svg {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .swipe-indicator span {
+        font-size: 20px;
+        padding: 8px 20px;
+    }
+    
+    .favorites-btn {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        left: 15px;
+    }
+    
+    .favorites-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .favorites-count {
+        min-width: 20px;
+        height: 20px;
+        font-size: 11px;
+    }
+    
+    .favorites-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-buttons {
+        padding: 0 15px;
+    }
+    
+    .action-btn {
+        width: 55px;
+        height: 55px;
+    }
+}
