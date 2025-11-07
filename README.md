@@ -10,6 +10,7 @@ A Tinder-style video shopping application with Hebrew (RTL) support.
 - 🛒 **Product Details** - Title, description, and price in Hebrew
 - 🔐 **Protected Admin Panel** - Password-protected (Liron3214)
 - 📤 **Video Upload** - Admin can upload products via web interface
+- ☁️ **Cloud Storage** - Videos hosted on Cloudinary CDN (fast & reliable)
 - 💾 **Favorites** - LocalStorage-based favorites system
 - 🇮🇱 **Hebrew RTL Support** - Full right-to-left language support
 - 📱 **Mobile-First** - Optimized for mobile devices
@@ -21,6 +22,21 @@ A Tinder-style video shopping application with Hebrew (RTL) support.
 ```bash
 npm install
 ```
+
+### Configure Cloudinary
+
+1. **Register at Cloudinary:**
+   - Go to https://cloudinary.com/users/register_free
+   - Get your credentials (Cloud Name, API Key, API Secret)
+
+2. **Set environment variables:**
+   - Create `.env` file in project root:
+   ```env
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   PORT=3000
+   ```
 
 ### Run Locally
 
@@ -82,15 +98,18 @@ The app will be available at: **http://localhost:3000**
 ├── server.js           # Node.js + Express server
 ├── package.json        # Dependencies
 ├── products.json       # Products database (JSON)
-└── videos/             # Uploaded product videos
+├── .env                # Environment variables (Cloudinary)
+└── .env.example        # Example environment variables
 ```
+
+**Note:** Videos are stored in Cloudinary cloud, not locally!
 
 ## 🌐 Deploy to Render.com
 
 1. **Push to GitHub:**
    ```bash
    git add .
-   git commit -m "Initial commit"
+   git commit -m "Added Cloudinary integration"
    git push origin main
    ```
 
@@ -103,7 +122,14 @@ The app will be available at: **http://localhost:3000**
      - **Start Command:** `npm start`
      - **Environment:** Node
 
-3. **Deploy!**
+3. **Add Environment Variables:**
+   - Go to **"Environment"** tab
+   - Add:
+     - `CLOUDINARY_CLOUD_NAME` = dsnyttklu
+     - `CLOUDINARY_API_KEY` = 765373894661392
+     - `CLOUDINARY_API_SECRET` = [your secret from Cloudinary]
+
+4. **Deploy!**
    - Click **"Create Web Service"**
    - Wait ~5 minutes
    - Done! 🎉
@@ -114,6 +140,7 @@ Your app will be live at: `https://your-app-name.onrender.com`
 
 - **Backend:** Node.js + Express
 - **File Upload:** Multer
+- **Cloud Storage:** Cloudinary (video hosting & CDN)
 - **Frontend:** Vanilla JavaScript (no frameworks)
 - **Styling:** CSS3 with RTL support
 - **Video:** HTML5 Video API
@@ -122,12 +149,20 @@ Your app will be live at: `https://your-app-name.onrender.com`
 
 ## 🔧 Environment Variables
 
-For production deployment:
+For production deployment (Railway/Render):
 
 ```env
+# Cloudinary (REQUIRED)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Server
 PORT=3000
 NODE_ENV=production
 ```
+
+**⚠️ Important:** Set these variables on your hosting platform (Railway/Render) before deploying!
 
 ## 📊 API Endpoints
 
@@ -191,7 +226,7 @@ All text is in Hebrew. To change language, edit:
    - Purchase link
 5. Click **"העלה מוצר"** (Upload Product)
 
-### Manually
+### Manually (Not Recommended)
 Add to `products.json`:
 ```json
 {
@@ -200,11 +235,13 @@ Add to `products.json`:
   "description": "Product description",
   "price": "₪299",
   "link": "https://example.com/buy",
-  "videoUrl": "videos/product123456789.mp4",
-  "videoFileName": "product123456789.mp4",
+  "videoUrl": "https://res.cloudinary.com/dsnyttklu/video/upload/v1234567890/products/product_123456789.mp4",
+  "videoPublicId": "products/product_123456789",
   "createdAt": "2025-01-01T00:00:00.000Z"
 }
 ```
+
+**Note:** Use the admin panel instead - it handles Cloudinary upload automatically!
 
 ## 🐛 Troubleshooting
 
@@ -212,6 +249,7 @@ Add to `products.json`:
 - Check video format (must be MP4)
 - Check file size (max 100MB)
 - Check browser console for errors
+- Verify Cloudinary credentials are set correctly
 
 ### Admin panel not accessible
 - Clear browser cache
@@ -220,8 +258,9 @@ Add to `products.json`:
 
 ### Upload fails
 - Check video size (max 100MB)
-- Check available disk space
-- Check `videos/` folder permissions
+- Verify Cloudinary environment variables are set
+- Check Cloudinary account quota (free: 25GB)
+- Check browser console for errors
 
 ## 📄 License
 

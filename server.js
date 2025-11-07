@@ -2,15 +2,25 @@
 // Node.js Server for Admin Panel
 // ============================
 
+require('dotenv').config();
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Cloudinary Configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dsnyttklu',
+    api_key: process.env.CLOUDINARY_API_KEY || '765373894661392',
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Middleware
 app.use(cors());
@@ -29,23 +39,8 @@ function checkAuth(req, res, next) {
 // Static files
 app.use(express.static(__dirname));
 
-// Ensure directories exist
-const videosDir = path.join(__dirname, 'videos');
-if (!fsSync.existsSync(videosDir)) {
-    fsSync.mkdirSync(videosDir);
-}
-
-// Configure multer for video uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'videos/');
-    },
-    filename: (req, file, cb) => {
-        const timestamp = Date.now();
-        const ext = path.extname(file.originalname);
-        cb(null, `product${timestamp}${ext}`);
-    }
-});
+// Configure multer for video uploads (memory storage for Cloudinary)
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
@@ -134,29 +129,52 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
         const { title, description, price, link } = req.body;
 
         if (!title || !description || !price || !link) {
-            // Delete uploaded file if validation fails
-            await fs.unlink(req.file.path);
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        const products = await readProducts();
-        
-        const newProduct = {
-            id: `product_${Date.now()}`,
-            title,
-            description,
-            price,
-            link,
-            videoUrl: `videos/${req.file.filename}`,
-            videoFileName: req.file.filename,
-            createdAt: new Date().toISOString()
-        };
+        console.log('📤 Uploading video to Cloudinary...');
 
-        products.push(newProduct);
-        await writeProducts(products);
+        // Upload to Cloudinary
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'video',
+                folder: 'products',
+                public_id: `product_${Date.now()}`
+            },
+            async (error, result) => {
+                if (error) {
+                    console.error('❌ Cloudinary upload error:', error);
+                    return res.status(500).json({ error: 'Failed to upload video to cloud' });
+                }
 
-        console.log(`✅ Product uploaded: ${title}`);
-        res.json({ success: true, product: newProduct });
+                try {
+                    const products = await readProducts();
+                    
+                    const newProduct = {
+                        id: `product_${Date.now()}`,
+                        title,
+                        description,
+                        price,
+                        link,
+                        videoUrl: result.secure_url,
+                        videoPublicId: result.public_id,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    products.push(newProduct);
+                    await writeProducts(products);
+
+                    console.log(`✅ Product uploaded: ${title}`);
+                    res.json({ success: true, product: newProduct });
+                } catch (err) {
+                    console.error('❌ Database error:', err);
+                    res.status(500).json({ error: 'Failed to save product' });
+                }
+            }
+        );
+
+        // Pipe the buffer to Cloudinary
+        uploadStream.end(req.file.buffer);
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ error: 'Failed to upload product' });
@@ -176,13 +194,14 @@ app.delete('/api/products/:id', async (req, res) => {
 
         const product = products[productIndex];
         
-        // Delete video file
-        const videoPath = path.join(__dirname, product.videoUrl);
-        try {
-            await fs.unlink(videoPath);
-            console.log(`🗑️ Deleted video: ${product.videoFileName}`);
-        } catch (error) {
-            console.warn('Video file not found:', product.videoFileName);
+        // Delete video from Cloudinary
+        if (product.videoPublicId) {
+            try {
+                await cloudinary.uploader.destroy(product.videoPublicId, { resource_type: 'video' });
+                console.log(`🗑️ Deleted video from Cloudinary: ${product.videoPublicId}`);
+            } catch (error) {
+                console.warn('Failed to delete video from Cloudinary:', error.message);
+            }
         }
 
         // Remove from products array
