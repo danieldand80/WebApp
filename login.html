@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>כניסת מנהל - Liron Shop</title>
+    <title>Admin Login - Liron Shop</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/Favicon.png">
@@ -55,7 +55,7 @@
 
         .form-group {
             margin-bottom: 25px;
-            text-align: right;
+            text-align: left;
         }
 
         label {
@@ -166,29 +166,29 @@
 <body>
     <div class="login-container">
         <div class="login-icon">🔐</div>
-        <h1>פאנל ניהול</h1>
-        <p>אזור מוגן למנהלים בלבד</p>
+        <h1>Admin Panel</h1>
+        <p>Protected area for administrators only</p>
         
         <div id="errorMessage" class="error-message"></div>
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="password">🔑 סיסמה</label>
+                <label for="password">🔑 Password</label>
                 <input 
                     type="password" 
                     id="password" 
-                    placeholder="הזן סיסמה"
+                    placeholder="Enter password"
                     required
                     autocomplete="off"
                 >
             </div>
             
             <button type="submit" class="login-btn" id="loginBtn">
-                כניסה לפאנל ניהול
+                Login to Admin Panel
             </button>
         </form>
         
-        <a href="/" class="back-link">← חזרה לאתר הראשי</a>
+        <a href="/" class="back-link">← Back to Main Site</a>
     </div>
 
     <script>
@@ -207,12 +207,12 @@
             const password = passwordInput.value;
             
             if (attempts >= MAX_ATTEMPTS) {
-                showError('נחסמת עקב ניסיונות כושלים רבים מדי');
+                showError('Blocked due to too many failed attempts');
                 return;
             }
             
             loginBtn.disabled = true;
-            loginBtn.textContent = 'מאמת...';
+            loginBtn.textContent = 'Verifying...';
             
             // Simulate network delay
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -232,9 +232,9 @@
                 const remaining = MAX_ATTEMPTS - attempts;
                 
                 if (remaining > 0) {
-                    showError(`❌ סיסמה שגויה! נותרו ${remaining} ניסיונות`);
+                    showError(`❌ Wrong password! ${remaining} attempts remaining`);
                 } else {
-                    showError('❌ נחסמת! רענן את הדף כדי לנסות שוב');
+                    showError('❌ Blocked! Refresh the page to try again');
                     passwordInput.disabled = true;
                 }
                 
@@ -243,7 +243,7 @@
             }
             
             loginBtn.disabled = false;
-            loginBtn.textContent = 'כניסה לפאנל ניהול';
+            loginBtn.textContent = 'Login to Admin Panel';
         });
         
         function showError(message) {
@@ -257,7 +257,7 @@
         
         function showSuccess() {
             errorMessage.style.background = '#2ecc71';
-            errorMessage.textContent = '✅ סיסמה נכונה! מעביר...';
+            errorMessage.textContent = '✅ Correct password! Redirecting...';
             errorMessage.classList.add('show');
         }
         

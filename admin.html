@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>פאנל ניהול - Liron Shop Admin</title>
+    <title>Admin Panel - Liron Shop</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/Favicon.png">
@@ -349,8 +349,8 @@
     <div class="admin-container">
         <!-- Header -->
         <div class="admin-header">
-            <h1>🎬 פאנל ניהול - Liron Shop</h1>
-            <p>העלה ועדכן מוצרים בקלות</p>
+            <h1>🎬 Admin Panel - Liron Shop</h1>
+            <p>Upload and manage products easily</p>
         </div>
 
         <!-- Alert Messages -->
@@ -360,15 +360,15 @@
         <div class="admin-content">
             <!-- Upload Section -->
             <div class="upload-section">
-                <h2>📤 העלאת מוצר חדש</h2>
+                <h2>📤 Upload New Product</h2>
                 
                 <form id="uploadForm">
                     <!-- Video Upload -->
                     <div class="upload-box" id="uploadBox">
                         <div class="upload-icon">🎥</div>
-                        <p><strong>גרור ושחרר וידאו כאן</strong></p>
-                        <p>או</p>
-                        <small>לחץ לבחירת קובץ (MP4, 9:16)</small>
+                        <p><strong>Drag and drop video here</strong></p>
+                        <p>or</p>
+                        <small>Click to select file (MP4, 9:16)</small>
                     </div>
                     <input type="file" id="videoFile" accept="video/mp4,video/quicktime" required>
                     
@@ -379,34 +379,34 @@
 
                     <!-- Product Info -->
                     <div class="form-group">
-                        <label>🏷️ שם המוצר</label>
-                        <input type="text" id="productTitle" placeholder="לדוגמה: מכונת גלידה ביתית" required>
+                        <label>🏷️ Product Name</label>
+                        <input type="text" id="productTitle" placeholder="Example: Home Ice Cream Maker" required>
                     </div>
 
                     <div class="form-group">
-                        <label>📝 תיאור המוצר</label>
-                        <textarea id="productDescription" placeholder="תאר את המוצר בקצרה..." required></textarea>
+                        <label>📝 Product Description</label>
+                        <textarea id="productDescription" placeholder="Describe the product briefly..." required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>💰 מחיר</label>
-                        <input type="text" id="productPrice" placeholder="₪299" required>
+                        <label>💰 Price</label>
+                        <input type="text" id="productPrice" placeholder="$299" required>
                     </div>
 
                     <div class="form-group">
-                        <label>🔗 קישור לרכישה</label>
+                        <label>🔗 Purchase Link</label>
                         <input type="url" id="productLink" placeholder="https://example.com/product" required>
                     </div>
 
                     <button type="submit" class="submit-btn" id="submitBtn">
-                        ✨ העלה מוצר
+                        ✨ Upload Product
                     </button>
                 </form>
             </div>
 
             <!-- Products List -->
             <div class="products-section">
-                <h2>📦 מוצרים קיימים (<span id="productCount">0</span>)</h2>
+                <h2>📦 Existing Products (<span id="productCount">0</span>)</h2>
                 <div id="productsList"></div>
             </div>
         </div>
@@ -434,11 +434,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             const header = document.querySelector('.admin-header');
             const logoutBtn = document.createElement('button');
-            logoutBtn.innerHTML = '🚪 יציאה';
+            logoutBtn.innerHTML = '🚪 Logout';
             logoutBtn.style.cssText = `
                 position: absolute;
                 top: 30px;
-                left: 30px;
+                right: 30px;
                 padding: 10px 20px;
                 background: #ff4757;
                 color: white;
@@ -455,7 +455,7 @@
                 logoutBtn.style.background = '#ff4757';
             });
             logoutBtn.addEventListener('click', () => {
-                if (confirm('האם אתה בטוח שברצונך לצאת?')) {
+                if (confirm('Are you sure you want to logout?')) {
                     sessionStorage.removeItem('adminAuth');
                     sessionStorage.removeItem('adminAuthTime');
                     window.location.href = '/';

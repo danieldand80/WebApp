@@ -60,7 +60,7 @@ class AdminPanel {
                 this.videoFile.files = e.dataTransfer.files;
                 this.handleFileSelect(file);
             } else {
-                this.showAlert('אנא בחר קובץ וידאו תקין (MP4)', 'error');
+                this.showAlert('Please select a valid video file (MP4)', 'error');
             }
         });
     }
@@ -107,7 +107,7 @@ class AdminPanel {
                 const result = await response.json();
 
                 if (response.ok) {
-                    this.showAlert('✅ המוצר הועלה בהצלחה!', 'success');
+                    this.showAlert('✅ Product uploaded successfully!', 'success');
                     this.uploadForm.reset();
                     this.resetUploadBox();
                     this.loadProducts();
@@ -118,11 +118,11 @@ class AdminPanel {
                         this.progressFill.style.width = '0%';
                     }, 1000);
                 } else {
-                    throw new Error(result.error || 'שגיאה בהעלאה');
+                    throw new Error(result.error || 'Upload error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                this.showAlert('❌ שגיאה: ' + error.message, 'error');
+                this.showAlert('❌ Error: ' + error.message, 'error');
                 this.progressBar.classList.remove('show');
             } finally {
                 submitBtn.disabled = false;
@@ -156,8 +156,8 @@ class AdminPanel {
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
-                        <p>אין מוצרים עדיין</p>
-                        <small>העלה את המוצר הראשון שלך!</small>
+                        <p>No products yet</p>
+                        <small>Upload your first product!</small>
                     </div>
                 `;
             } else {
@@ -186,7 +186,7 @@ class AdminPanel {
             }
         } catch (error) {
             console.error('Load products error:', error);
-            this.showAlert('שגיאה בטעינת מוצרים', 'error');
+            this.showAlert('Error loading products', 'error');
         }
     }
 
@@ -194,7 +194,7 @@ class AdminPanel {
     // Delete Product
     // ============================
     async deleteProduct(productId) {
-        if (!confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) {
+        if (!confirm('Are you sure you want to delete this product?')) {
             return;
         }
 
@@ -204,14 +204,14 @@ class AdminPanel {
             });
 
             if (response.ok) {
-                this.showAlert('✅ המוצר נמחק בהצלחה', 'success');
+                this.showAlert('✅ Product deleted successfully', 'success');
                 this.loadProducts();
             } else {
-                throw new Error('שגיאה במחיקה');
+                throw new Error('Delete error');
             }
         } catch (error) {
             console.error('Delete error:', error);
-            this.showAlert('❌ שגיאה במחיקת המוצר', 'error');
+            this.showAlert('❌ Error deleting product', 'error');
         }
     }
 
@@ -219,7 +219,7 @@ class AdminPanel {
     // Edit Product (Placeholder)
     // ============================
     editProduct(productId) {
-        this.showAlert('ℹ️ תכונת עריכה תתווסף בקרוב', 'success');
+        this.showAlert('ℹ️ Edit feature coming soon', 'success');
     }
 
     // ============================
