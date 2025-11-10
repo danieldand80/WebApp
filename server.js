@@ -59,14 +59,118 @@ const upload = multer({
 
 // Products data file
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
+const CLOUDINARY_PRODUCTS_ID = 'database/products.json';
 
-// Initialize products file if it doesn't exist
+// Upload products.json to Cloudinary
+async function uploadProductsToCloudinary(products) {
+    try {
+        const jsonString = JSON.stringify(products, null, 2);
+        
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    resource_type: 'raw',
+                    public_id: CLOUDINARY_PRODUCTS_ID,
+                    overwrite: true
+                },
+                (error, result) => {
+                    if (error) {
+                        console.error('❌ Failed to upload products.json to Cloudinary:', error.message);
+                        reject(error);
+                    } else {
+                        console.log('☁️ Products synced to Cloudinary');
+                        resolve(result);
+                    }
+                }
+            );
+            uploadStream.end(Buffer.from(jsonString));
+        });
+    } catch (error) {
+        console.error('❌ Cloudinary sync error:', error);
+        throw error;
+    }
+}
+
+// Download products.json from Cloudinary
+async function downloadProductsFromCloudinary() {
+    try {
+        const https = require('https');
+        const url = cloudinary.url(CLOUDINARY_PRODUCTS_ID, { resource_type: 'raw' });
+        
+        return new Promise((resolve, reject) => {
+            https.get(url, (response) => {
+                if (response.statusCode === 200) {
+                    let data = '';
+                    response.on('data', (chunk) => {
+                        data += chunk;
+                    });
+                    response.on('end', () => {
+                        try {
+                            const products = JSON.parse(data);
+                            console.log(`☁️ Loaded ${products.length} products from Cloudinary`);
+                            resolve(products);
+                        } catch (e) {
+                            console.log('📝 No products.json in Cloudinary yet');
+                            resolve([]);
+                        }
+                    });
+                } else if (response.statusCode === 404) {
+                    console.log('📝 No products.json in Cloudinary yet (404)');
+                    resolve([]);
+                } else {
+                    console.log(`📝 Cloudinary response: ${response.statusCode}`);
+                    resolve([]);
+                }
+            }).on('error', (error) => {
+                console.log('📝 No products.json in Cloudinary yet (first run)');
+                resolve([]);
+            });
+        });
+    } catch (error) {
+        console.log('📝 No products.json in Cloudinary yet (error)');
+        return [];
+    }
+}
+
+// Initialize products file - load from Cloudinary
 async function initProductsFile() {
     try {
-        await fs.access(PRODUCTS_FILE);
-    } catch {
-        await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
-        console.log('✅ Created products.json');
+        // Try to load from Cloudinary first
+        const cloudProducts = await downloadProductsFromCloudinary();
+        
+        if (cloudProducts.length > 0) {
+            // Cloud has data - use it
+            await fs.writeFile(PRODUCTS_FILE, JSON.stringify(cloudProducts, null, 2));
+            console.log(`✅ Synced ${cloudProducts.length} products from cloud`);
+        } else {
+            // No cloud data - check local file
+            try {
+                await fs.access(PRODUCTS_FILE);
+                const localData = await fs.readFile(PRODUCTS_FILE, 'utf8');
+                const localProducts = JSON.parse(localData);
+                
+                if (localProducts.length > 0) {
+                    // Upload local products to cloud
+                    console.log(`📤 Uploading ${localProducts.length} local products to cloud...`);
+                    await uploadProductsToCloudinary(localProducts);
+                    console.log(`✅ Local products backed up to cloud`);
+                } else {
+                    console.log('📁 Using empty local products.json');
+                }
+            } catch {
+                // Create empty file
+                await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
+                console.log('✅ Created empty products.json');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Init error:', error);
+        // Fallback to local file
+        try {
+            await fs.access(PRODUCTS_FILE);
+        } catch {
+            await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
+        }
     }
 }
 
@@ -81,9 +185,18 @@ async function readProducts() {
     }
 }
 
-// Write products
+// Write products - save both locally and to Cloudinary
 async function writeProducts(products) {
-    await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+    try {
+        // Save locally
+        await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+        
+        // Sync to Cloudinary
+        await uploadProductsToCloudinary(products);
+    } catch (error) {
+        console.error('❌ Error saving products:', error);
+        throw error;
+    }
 }
 
 // ============================
