@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 // Cloudinary Configuration
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dsnytix1u',
-    api_key: process.env.CLOUDINARY_API_KEY || '321457285971529',
+    api_key: process.env.CLOUDINARY_API_KEY || '765373694661392',
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
@@ -143,8 +143,9 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
             },
             async (error, result) => {
                 if (error) {
-                    console.error('❌ Cloudinary upload error:', error);
-                    return res.status(500).json({ error: 'Failed to upload video to cloud' });
+                    console.error('❌ Cloudinary upload error:', JSON.stringify(error, null, 2));
+                    console.error('Error details:', error.message || error);
+                    return res.status(500).json({ error: 'Failed to upload video to cloud', details: error.message });
                 }
 
                 try {
