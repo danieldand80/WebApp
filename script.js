@@ -65,7 +65,7 @@ class VideoShoppingApp {
     // ============================
     async loadProductsFromAPI() {
         try {
-            const response = await fetch('http://localhost:3000/api/products');
+            const response = await fetch('/api/products');
             this.products = await response.json();
             console.log(`📦 Found ${this.products.length} products`);
         } catch (error) {

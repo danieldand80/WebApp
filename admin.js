@@ -99,7 +99,7 @@ class AdminPanel {
             try {
                 this.progressBar.classList.add('show');
                 
-                const response = await fetch('http://localhost:3000/api/upload', {
+                const response = await fetch('/api/upload', {
                     method: 'POST',
                     body: formData
                 });
@@ -145,7 +145,7 @@ class AdminPanel {
     // ============================
     async loadProducts() {
         try {
-            const response = await fetch('http://localhost:3000/api/products');
+            const response = await fetch('/api/products');
             const products = await response.json();
             
             document.getElementById('productCount').textContent = products.length;
@@ -199,7 +199,7 @@ class AdminPanel {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/products/${productId}`, {
+            const response = await fetch(`/api/products/${productId}`, {
                 method: 'DELETE'
             });
 
