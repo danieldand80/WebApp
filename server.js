@@ -17,8 +17,8 @@ const PORT = process.env.PORT || 3000;
 
 // Cloudinary Configuration
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dsnyttklu',
-    api_key: process.env.CLOUDINARY_API_KEY || '765373894661392',
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dsnytix1u',
+    api_key: process.env.CLOUDINARY_API_KEY || '321457285971529',
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
