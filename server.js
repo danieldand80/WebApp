@@ -262,6 +262,19 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+// Force sync to Cloudinary (admin only)
+app.post('/api/sync-cloud', async (req, res) => {
+    try {
+        const products = await readProducts();
+        await uploadProductsToCloudinary(products);
+        console.log(`🔄 Force synced ${products.length} products to Cloudinary`);
+        res.json({ success: true, count: products.length, message: 'Synced to Cloudinary' });
+    } catch (error) {
+        console.error('❌ Sync error:', error);
+        res.status(500).json({ error: 'Failed to sync to Cloudinary' });
+    }
+});
+
 // Upload new product
 app.post('/api/upload', upload.single('video'), async (req, res) => {
     console.log('🎬 Upload request received!');
