@@ -351,10 +351,14 @@ body {
     visibility: hidden;
     transform: translateY(10px);
     transition: all 0.3s ease;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px 10px;
-    border-radius: 25px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 6px;
+    border-radius: 20px;
     backdrop-filter: blur(10px);
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .volume-control:hover .volume-slider-container,
@@ -368,7 +372,7 @@ body {
     -webkit-appearance: none;
     appearance: none;
     width: 100px;
-    height: 4px;
+    height: 3px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     outline: none;
@@ -379,32 +383,53 @@ body {
 .volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     background: white;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
 }
 
 .volume-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.3);
 }
 
 .volume-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     background: white;
     border-radius: 50%;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
 }
 
 .volume-slider::-moz-range-thumb:hover {
-    transform: scale(1.2);
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Volume slider track fill effect */
+.volume-slider::-webkit-slider-runnable-track {
+    height: 3px;
+    background: linear-gradient(to right, white var(--volume-percent, 100%), rgba(255, 255, 255, 0.3) var(--volume-percent, 100%));
+    border-radius: 2px;
+}
+
+.volume-slider::-moz-range-track {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.volume-slider::-moz-range-progress {
+    height: 3px;
+    background: white;
+    border-radius: 2px;
 }
 
 /* ============================

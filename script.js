@@ -405,6 +405,9 @@ class VideoShoppingApp {
                 const volume = e.target.value / 100;
                 video.volume = volume;
                 
+                // Update CSS variable for track fill
+                volumeSlider.style.setProperty('--volume-percent', `${e.target.value}%`);
+                
                 // Update icon
                 if (volume === 0) {
                     volumeIcon.style.display = 'none';
