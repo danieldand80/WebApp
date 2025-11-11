@@ -132,72 +132,32 @@ async function downloadProductsFromCloudinary() {
     }
 }
 
-// Initialize products file - load from Cloudinary
+// Initialize products file - Cloudinary is the single source of truth
 async function initProductsFile() {
     try {
-        // Check if local file exists first
-        let localProducts = [];
-        let hasLocalFile = false;
+        console.log('🔄 Initializing products from Cloudinary (single source of truth)...');
         
-        try {
-            await fs.access(PRODUCTS_FILE);
-            const localData = await fs.readFile(PRODUCTS_FILE, 'utf8');
-            localProducts = JSON.parse(localData);
-            hasLocalFile = true;
-            console.log(`📁 Found local file with ${localProducts.length} products`);
-        } catch {
-            console.log('📁 No local products.json file');
-        }
-        
-        // Try to load from Cloudinary
+        // Always load from Cloudinary first
         const cloudProducts = await downloadProductsFromCloudinary();
         console.log(`☁️ Cloudinary has ${cloudProducts.length} products`);
         
-        // Compare and use the most recent data
-        if (cloudProducts.length > 0 && localProducts.length > 0) {
-            // Both exist - compare timestamps
-            const cloudNewest = cloudProducts.reduce((latest, p) => {
-                const pDate = new Date(p.createdAt || 0);
-                return pDate > latest ? pDate : latest;
-            }, new Date(0));
-            
-            const localNewest = localProducts.reduce((latest, p) => {
-                const pDate = new Date(p.createdAt || 0);
-                return pDate > latest ? pDate : latest;
-            }, new Date(0));
-            
-            if (localNewest > cloudNewest) {
-                console.log('📤 Local data is newer - uploading to Cloudinary...');
-                await uploadProductsToCloudinary(localProducts);
-                console.log(`✅ Uploaded ${localProducts.length} products to cloud`);
-            } else {
-                console.log('☁️ Cloud data is newer - syncing locally...');
-                await fs.writeFile(PRODUCTS_FILE, JSON.stringify(cloudProducts, null, 2));
-                console.log(`✅ Synced ${cloudProducts.length} products from cloud`);
-            }
-        } else if (cloudProducts.length > 0) {
-            // Only cloud has data
+        if (cloudProducts.length > 0) {
+            // Save cloud data locally for this session
             await fs.writeFile(PRODUCTS_FILE, JSON.stringify(cloudProducts, null, 2));
-            console.log(`✅ Synced ${cloudProducts.length} products from cloud`);
-        } else if (localProducts.length > 0) {
-            // Only local has data
-            console.log(`📤 Uploading ${localProducts.length} local products to cloud...`);
-            await uploadProductsToCloudinary(localProducts);
-            console.log(`✅ Local products backed up to cloud`);
+            console.log(`✅ Loaded ${cloudProducts.length} products from Cloudinary`);
         } else {
-            // No data anywhere
+            // No data in cloud - create empty file
             await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
-            console.log('✅ Created empty products.json');
+            console.log('📝 No products in Cloudinary - starting fresh');
         }
     } catch (error) {
         console.error('❌ Init error:', error);
-        // Fallback to local file
+        // Try to create empty file
         try {
-            await fs.access(PRODUCTS_FILE);
-            console.log('⚠️ Using existing local file as fallback');
-        } catch {
             await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
             console.log('⚠️ Created empty products.json as fallback');
+        } catch (e) {
+            console.error('❌ Cannot create products.json:', e);
         }
     }
 }
@@ -213,16 +173,16 @@ async function readProducts() {
     }
 }
 
-// Write products - save both locally and to Cloudinary
+// Write products - save both locally and to Cloudinary (auto-sync)
 async function writeProducts(products) {
     try {
-        // Save locally
+        // Save locally first
         await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
         console.log(`💾 Saved ${products.length} products locally`);
         
-        // Sync to Cloudinary
+        // Immediately sync to Cloudinary (single source of truth)
         await uploadProductsToCloudinary(products);
-        console.log(`☁️ Uploaded ${products.length} products to Cloudinary`);
+        console.log(`☁️ Auto-synced ${products.length} products to Cloudinary`);
     } catch (error) {
         console.error('❌ Error saving products:', error);
         throw error;
@@ -262,18 +222,6 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Force sync to Cloudinary (admin only)
-app.post('/api/sync-cloud', async (req, res) => {
-    try {
-        const products = await readProducts();
-        await uploadProductsToCloudinary(products);
-        console.log(`🔄 Force synced ${products.length} products to Cloudinary`);
-        res.json({ success: true, count: products.length, message: 'Synced to Cloudinary' });
-    } catch (error) {
-        console.error('❌ Sync error:', error);
-        res.status(500).json({ error: 'Failed to sync to Cloudinary' });
-    }
-});
 
 // Upload new product
 app.post('/api/upload', upload.single('video'), async (req, res) => {

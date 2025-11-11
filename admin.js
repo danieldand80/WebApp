@@ -18,42 +18,9 @@ class AdminPanel {
     init() {
         this.setupDragDrop();
         this.setupFormSubmit();
-        this.setupSyncButton();
         this.loadProducts();
         
         console.log('✅ Admin Panel initialized');
-    }
-
-    // ============================
-    // Sync to Cloud Button
-    // ============================
-    setupSyncButton() {
-        const syncBtn = document.getElementById('syncCloudBtn');
-        syncBtn.addEventListener('click', async () => {
-            const originalText = syncBtn.textContent;
-            syncBtn.disabled = true;
-            syncBtn.textContent = '⏳ Syncing...';
-            
-            try {
-                const response = await fetch('/api/sync-cloud', {
-                    method: 'POST'
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    this.showAlert(`✅ Synced ${result.count} products to Cloudinary!`, 'success');
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (error) {
-                console.error('Sync error:', error);
-                this.showAlert('❌ Error: ' + error.message, 'error');
-            } finally {
-                syncBtn.disabled = false;
-                syncBtn.textContent = originalText;
-            }
-        });
     }
 
     // ============================
