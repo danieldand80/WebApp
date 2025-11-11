@@ -135,41 +135,69 @@ async function downloadProductsFromCloudinary() {
 // Initialize products file - load from Cloudinary
 async function initProductsFile() {
     try {
-        // Try to load from Cloudinary first
-        const cloudProducts = await downloadProductsFromCloudinary();
+        // Check if local file exists first
+        let localProducts = [];
+        let hasLocalFile = false;
         
-        if (cloudProducts.length > 0) {
-            // Cloud has data - use it
+        try {
+            await fs.access(PRODUCTS_FILE);
+            const localData = await fs.readFile(PRODUCTS_FILE, 'utf8');
+            localProducts = JSON.parse(localData);
+            hasLocalFile = true;
+            console.log(`📁 Found local file with ${localProducts.length} products`);
+        } catch {
+            console.log('📁 No local products.json file');
+        }
+        
+        // Try to load from Cloudinary
+        const cloudProducts = await downloadProductsFromCloudinary();
+        console.log(`☁️ Cloudinary has ${cloudProducts.length} products`);
+        
+        // Compare and use the most recent data
+        if (cloudProducts.length > 0 && localProducts.length > 0) {
+            // Both exist - compare timestamps
+            const cloudNewest = cloudProducts.reduce((latest, p) => {
+                const pDate = new Date(p.createdAt || 0);
+                return pDate > latest ? pDate : latest;
+            }, new Date(0));
+            
+            const localNewest = localProducts.reduce((latest, p) => {
+                const pDate = new Date(p.createdAt || 0);
+                return pDate > latest ? pDate : latest;
+            }, new Date(0));
+            
+            if (localNewest > cloudNewest) {
+                console.log('📤 Local data is newer - uploading to Cloudinary...');
+                await uploadProductsToCloudinary(localProducts);
+                console.log(`✅ Uploaded ${localProducts.length} products to cloud`);
+            } else {
+                console.log('☁️ Cloud data is newer - syncing locally...');
+                await fs.writeFile(PRODUCTS_FILE, JSON.stringify(cloudProducts, null, 2));
+                console.log(`✅ Synced ${cloudProducts.length} products from cloud`);
+            }
+        } else if (cloudProducts.length > 0) {
+            // Only cloud has data
             await fs.writeFile(PRODUCTS_FILE, JSON.stringify(cloudProducts, null, 2));
             console.log(`✅ Synced ${cloudProducts.length} products from cloud`);
+        } else if (localProducts.length > 0) {
+            // Only local has data
+            console.log(`📤 Uploading ${localProducts.length} local products to cloud...`);
+            await uploadProductsToCloudinary(localProducts);
+            console.log(`✅ Local products backed up to cloud`);
         } else {
-            // No cloud data - check local file
-            try {
-                await fs.access(PRODUCTS_FILE);
-                const localData = await fs.readFile(PRODUCTS_FILE, 'utf8');
-                const localProducts = JSON.parse(localData);
-                
-                if (localProducts.length > 0) {
-                    // Upload local products to cloud
-                    console.log(`📤 Uploading ${localProducts.length} local products to cloud...`);
-                    await uploadProductsToCloudinary(localProducts);
-                    console.log(`✅ Local products backed up to cloud`);
-                } else {
-                    console.log('📁 Using empty local products.json');
-                }
-            } catch {
-                // Create empty file
-                await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
-                console.log('✅ Created empty products.json');
-            }
+            // No data anywhere
+            await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
+            console.log('✅ Created empty products.json');
         }
     } catch (error) {
         console.error('❌ Init error:', error);
         // Fallback to local file
         try {
             await fs.access(PRODUCTS_FILE);
+            console.log('⚠️ Using existing local file as fallback');
         } catch {
             await fs.writeFile(PRODUCTS_FILE, JSON.stringify([], null, 2));
+            console.log('⚠️ Created empty products.json as fallback');
         }
     }
 }
