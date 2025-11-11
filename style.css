@@ -311,7 +311,7 @@ body {
    ============================ */
 .volume-control {
     position: absolute;
-    top: 80px;
+    top: 20px;
     right: 20px;
     z-index: 100;
     display: flex;
