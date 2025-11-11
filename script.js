@@ -81,7 +81,7 @@ class VideoShoppingApp {
         this.slider.innerHTML = this.products.map((product, index) => `
             <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}">
                 <div class="video-container">
-                    <video class="product-video" playsinline webkit-playsinline muted loop>
+                    <video class="product-video" playsinline webkit-playsinline loop controls>
                         <source src="${product.videoUrl}" type="video/mp4">
                         הדפדפן שלך לא תומך בוידאו
                     </video>
@@ -132,7 +132,7 @@ class VideoShoppingApp {
                 </div>
                 
                 <!-- Product Info -->
-                <div class="product-info">
+                <div class="product-info" data-position="${product.descriptionPosition || 'middle'}">
                     <h2 class="product-title">${product.title}</h2>
                     <p class="product-description">${product.description}</p>
                     <div class="product-price">${product.price}</div>

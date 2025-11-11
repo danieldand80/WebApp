@@ -244,7 +244,7 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
             return res.status(400).json({ error: 'No video file uploaded' });
         }
 
-        const { title, description, price, link } = req.body;
+        const { title, description, price, link, descriptionPosition } = req.body;
 
         if (!title || !description || !price || !link) {
             return res.status(400).json({ error: 'All fields are required' });
@@ -275,6 +275,7 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
                         description,
                         price,
                         link,
+                        descriptionPosition: descriptionPosition || 'middle',
                         videoUrl: result.secure_url,
                         videoPublicId: result.public_id,
                         createdAt: new Date().toISOString()

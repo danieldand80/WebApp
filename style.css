@@ -181,10 +181,30 @@ body {
     left: 0;
     right: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-    padding: 80px 25px 35px;
+    padding: 100px 25px 120px;
     z-index: 20;
     color: white;
     pointer-events: none;
+}
+
+/* Description Position Variants */
+.product-info[data-position="top"] {
+    top: 0;
+    bottom: auto;
+    padding: 40px 25px 80px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+}
+
+.product-info[data-position="middle"] {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    padding: 40px 25px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.8) 100%);
+}
+
+.product-info[data-position="bottom"] {
+    /* Default - already defined above */
 }
 
 .product-info > * {
@@ -220,7 +240,24 @@ body {
    Purchase Button (SUPER PROMINENT!)
    ============================ */
 .purchase-btn {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 45px;
+    background: linear-gradient(135deg, #FF385C 0%, #FF6B88 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 24px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(255, 56, 92, 0.6);
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {

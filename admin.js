@@ -95,6 +95,7 @@ class AdminPanel {
             formData.append('description', document.getElementById('productDescription').value);
             formData.append('price', document.getElementById('productPrice').value);
             formData.append('link', document.getElementById('productLink').value);
+            formData.append('descriptionPosition', document.getElementById('descriptionPosition').value);
 
             try {
                 this.progressBar.classList.add('show');
