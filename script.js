@@ -80,7 +80,7 @@ class VideoShoppingApp {
     // ============================
     renderProducts() {
         this.slider.innerHTML = this.products.map((product, index) => `
-            <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}">
+            <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}" data-position="${product.descriptionPosition || 'bottom'}">
                 <div class="video-container">
                     <video class="product-video" playsinline webkit-playsinline loop>
                         <source src="${product.videoUrl}" type="video/mp4">
