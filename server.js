@@ -275,7 +275,7 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
                         description,
                         price,
                         link,
-                        descriptionPosition: descriptionPosition || 'middle',
+                        descriptionPosition: descriptionPosition || 'bottom',
                         videoUrl: result.secure_url,
                         videoPublicId: result.public_id,
                         createdAt: new Date().toISOString()
