@@ -380,7 +380,9 @@ body {
     border-radius: 3px;
     outline: none;
     transform: rotate(-90deg);
+    transform-origin: center center;
     cursor: pointer;
+    margin: 0;
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -393,6 +395,7 @@ body {
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     transition: all 0.2s ease;
+    margin-top: -7px;
 }
 
 .volume-slider::-webkit-slider-thumb:hover {
@@ -409,6 +412,7 @@ body {
     border: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     transition: all 0.2s ease;
+    margin-top: 0;
 }
 
 .volume-slider::-moz-range-thumb:hover {
