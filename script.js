@@ -22,6 +22,9 @@ class VideoShoppingApp {
         this.favorites = this.loadFavorites();
         this.products = [];
         
+        // Volume management - persist across videos
+        this.currentVolume = 1.0; // Default 100%
+        
         this.init();
     }
 
@@ -362,6 +365,8 @@ class VideoShoppingApp {
     playCurrentVideo() {
         const currentVideo = this.slides[this.currentSlide].querySelector('.product-video');
         if (currentVideo) {
+            // Apply saved volume to new video
+            currentVideo.volume = this.currentVolume;
             currentVideo.currentTime = 0;
             currentVideo.play().catch(() => {
                 this.showPlayButton(currentVideo);
@@ -397,10 +402,11 @@ class VideoShoppingApp {
             const volumeIcon = slide.querySelector('.volume-icon');
             const volumeMutedIcon = slide.querySelector('.volume-muted-icon');
 
-            // Set initial volume (100% volume = slider at 0, which is bottom)
-            video.volume = 1.0;
-            volumeSlider.value = 0; // Start at bottom (loud)
-            volumeSlider.style.setProperty('--volume-percent', '100%');
+            // Set initial volume from saved state
+            video.volume = this.currentVolume;
+            const sliderValue = (1 - this.currentVolume) * 100; // Invert for slider
+            volumeSlider.value = sliderValue;
+            volumeSlider.style.setProperty('--volume-percent', `${this.currentVolume * 100}%`);
 
             // Volume slider change (inverted: 0=top/quiet, 100=bottom/loud)
             volumeSlider.addEventListener('input', (e) => {
@@ -408,6 +414,9 @@ class VideoShoppingApp {
                 const sliderValue = e.target.value;
                 const volume = (100 - sliderValue) / 100; // Invert: 0->100, 100->0
                 video.volume = volume;
+                
+                // Save volume globally for next videos
+                this.currentVolume = volume;
                 
                 // Update CSS variable for track fill (also inverted)
                 volumeSlider.style.setProperty('--volume-percent', `${100 - sliderValue}%`);
@@ -427,15 +436,20 @@ class VideoShoppingApp {
                 e.stopPropagation();
                 
                 if (video.volume > 0) {
+                    // Mute
                     video.volume = 0;
+                    this.currentVolume = 0;
                     volumeSlider.value = 100; // Inverted: 100 = muted (top)
                     volumeSlider.style.setProperty('--volume-percent', '0%');
                     volumeIcon.style.display = 'none';
                     volumeMutedIcon.style.display = 'block';
                 } else {
-                    video.volume = 1.0;
-                    volumeSlider.value = 0; // Inverted: 0 = max volume (bottom)
-                    volumeSlider.style.setProperty('--volume-percent', '100%');
+                    // Unmute to previous volume or max
+                    const targetVolume = this.currentVolume > 0 ? this.currentVolume : 1.0;
+                    video.volume = targetVolume;
+                    this.currentVolume = targetVolume;
+                    volumeSlider.value = (1 - targetVolume) * 100; // Inverted
+                    volumeSlider.style.setProperty('--volume-percent', `${targetVolume * 100}%`);
                     volumeIcon.style.display = 'block';
                     volumeMutedIcon.style.display = 'none';
                 }
