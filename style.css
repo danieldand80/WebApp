@@ -311,8 +311,8 @@ body {
    ============================ */
 .volume-control {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 15px;
+    right: 15px;
     z-index: 100;
     display: flex;
     flex-direction: column;
