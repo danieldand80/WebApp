@@ -190,9 +190,11 @@ async function writeProducts(products) {
     try {
         // Save locally
         await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+        console.log(`💾 Saved ${products.length} products locally`);
         
         // Sync to Cloudinary
         await uploadProductsToCloudinary(products);
+        console.log(`☁️ Uploaded ${products.length} products to Cloudinary`);
     } catch (error) {
         console.error('❌ Error saving products:', error);
         throw error;

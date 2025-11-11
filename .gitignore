@@ -25,8 +25,8 @@ Thumbs.db
 # videos/*.MP4
 # !videos/README.txt
 
-# Products database (optional - если не хотите коммитить данные)
-# products.json
+# Products database - stored in Cloudinary, not in Git
+products.json
 
 # Build files
 dist/
