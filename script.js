@@ -110,7 +110,7 @@ class VideoShoppingApp {
                             </svg>
                         </button>
                         <div class="volume-slider-container">
-                            <input type="range" class="volume-slider" min="0" max="100" value="100" aria-label="רמת ווליום">
+                            <input type="range" class="volume-slider" min="0" max="100" value="0" aria-label="רמת ווליום">
                         </div>
                     </div>
 
@@ -397,16 +397,20 @@ class VideoShoppingApp {
             const volumeIcon = slide.querySelector('.volume-icon');
             const volumeMutedIcon = slide.querySelector('.volume-muted-icon');
 
-            // Set initial volume
+            // Set initial volume (100% volume = slider at 0, which is bottom)
             video.volume = 1.0;
+            volumeSlider.value = 0; // Start at bottom (loud)
+            volumeSlider.style.setProperty('--volume-percent', '100%');
 
-            // Volume slider change
+            // Volume slider change (inverted: 0=top/quiet, 100=bottom/loud)
             volumeSlider.addEventListener('input', (e) => {
-                const volume = e.target.value / 100;
+                // Invert the slider value so bottom = loud, top = quiet
+                const sliderValue = e.target.value;
+                const volume = (100 - sliderValue) / 100; // Invert: 0->100, 100->0
                 video.volume = volume;
                 
-                // Update CSS variable for track fill
-                volumeSlider.style.setProperty('--volume-percent', `${e.target.value}%`);
+                // Update CSS variable for track fill (also inverted)
+                volumeSlider.style.setProperty('--volume-percent', `${100 - sliderValue}%`);
                 
                 // Update icon
                 if (volume === 0) {
@@ -424,12 +428,14 @@ class VideoShoppingApp {
                 
                 if (video.volume > 0) {
                     video.volume = 0;
-                    volumeSlider.value = 0;
+                    volumeSlider.value = 100; // Inverted: 100 = muted (top)
+                    volumeSlider.style.setProperty('--volume-percent', '0%');
                     volumeIcon.style.display = 'none';
                     volumeMutedIcon.style.display = 'block';
                 } else {
                     video.volume = 1.0;
-                    volumeSlider.value = 100;
+                    volumeSlider.value = 0; // Inverted: 0 = max volume (bottom)
+                    volumeSlider.style.setProperty('--volume-percent', '100%');
                     volumeIcon.style.display = 'block';
                     volumeMutedIcon.style.display = 'none';
                 }
