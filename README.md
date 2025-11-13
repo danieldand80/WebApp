@@ -4,16 +4,25 @@ A Tinder-style video shopping application with Hebrew (RTL) support.
 
 ## ✨ Features
 
+### Main App
 - 📱 **Vertical Videos** - 9:16 format (TikTok/Instagram Reels style)
-- ❤️ **Swipe Right** - Like & Save to favorites
+- ❤️ **Swipe Animations** - Fullscreen green/red overlay on like/dislike
 - 👎 **Swipe Left** - Dislike & Skip to next
-- 🛒 **Product Details** - Title, description, and price in Hebrew
-- 🔐 **Protected Admin Panel** - Password-protected (Liron3214)
-- 📤 **Video Upload** - Admin can upload products via web interface
-- ☁️ **Cloud Storage** - Videos hosted on Cloudinary CDN (fast & reliable)
-- 💾 **Favorites** - LocalStorage-based favorites system
+- ♾️ **Endless Loop** - Never runs out of content! Shows favorites when all videos viewed
+- 🛒 **Product Details** - Title, description, price with transparent background
+- 📊 **Video Progress Bar** - Real-time white progress bar at bottom
+- 💾 **Favorites Grid** - 2-column grid with video previews (share, buy, delete)
+- 🔊 **Volume Control** - Persistent volume across videos
 - 🇮🇱 **Hebrew RTL Support** - Full right-to-left language support
 - 📱 **Mobile-First** - Optimized for mobile devices
+
+### Admin Panel
+- 🔐 **Protected Access** - Password-protected (Liron3214)
+- 📤 **Bulk Upload** - Upload multiple videos at once (~200 videos supported)
+- ☁️ **Cloud Storage** - Videos hosted on Cloudinary CDN (fast & reliable)
+- 🔄 **Auto-Sync** - Cloudinary as single source of truth
+- 📦 **Drag & Drop** - Multiple files with progress tracking
+- 🗑️ **Product Management** - View, edit, delete products
 
 ## 🚀 Quick Start
 
@@ -58,11 +67,12 @@ The app will be available at: **http://localhost:3000**
 **Password:** `Liron3214`
 
 ### Admin Features:
-- 📤 Upload videos (MP4, up to 100MB)
-- ✏️ Add new products
-- 🗑️ Delete products
-- 📊 View all products
-- 🚪 Logout button
+- 📤 **Bulk Upload** - Upload multiple videos at once (200+ supported)
+- ✏️ **Add Products** - Title, description, price, purchase link
+- 🗑️ **Delete Products** - Remove products and videos from Cloudinary
+- 📊 **View All Products** - See all uploaded products
+- 🔄 **Auto Cloud Sync** - Products automatically sync to Cloudinary
+- 🚪 **Logout** - Secure session management
 
 ## 🎥 Video Requirements
 
@@ -75,10 +85,11 @@ The app will be available at: **http://localhost:3000**
 ## 📱 User Controls
 
 ### Mobile (Touch):
-- 👉 **Swipe RIGHT** → ❤️ Like (save to favorites)
-- 👈 **Swipe LEFT** → 👎 Dislike (skip)
+- 👉 **Swipe RIGHT** → ❤️ Like with green fullscreen overlay
+- 👈 **Swipe LEFT** → 👎 Dislike with red fullscreen overlay
 - **Tap video** → Play/Pause
-- **Tap ❤️ button** → View favorites
+- **Tap ❤️ button** → View favorites grid (2-column with previews)
+- **Volume slider** → Adjust sound (persists across videos)
 
 ### Desktop (Keyboard/Mouse):
 - **→ Right Arrow** → Like
