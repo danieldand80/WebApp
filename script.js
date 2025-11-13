@@ -394,6 +394,7 @@ class VideoShoppingApp {
             const overlay = slide.querySelector('.video-overlay');
             const playPauseBtn = slide.querySelector('.play-pause-btn');
             const progressBar = slide.querySelector('.video-progress-fill');
+            const progressBarContainer = slide.querySelector('.video-progress-bar');
 
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay || e.target === playPauseBtn || e.target.closest('.play-pause-btn')) {
@@ -428,6 +429,19 @@ class VideoShoppingApp {
             
             video.addEventListener('loadedmetadata', () => {
                 progressBar.style.width = '0%';
+            });
+            
+            // Make progress bar clickable for seeking
+            progressBarContainer.addEventListener('click', (e) => {
+                if (!video.duration) return;
+                
+                const rect = progressBarContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = clickX / rect.width;
+                const newTime = percentage * video.duration;
+                
+                video.currentTime = newTime;
+                console.log(`⏩ Seeked to ${Math.floor(newTime)}s (${Math.floor(percentage * 100)}%)`);
             });
         });
     }
