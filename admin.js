@@ -11,6 +11,11 @@ class AdminPanel {
         this.alertBox = document.getElementById('alertBox');
         this.progressBar = document.getElementById('progressBar');
         this.progressFill = document.getElementById('progressFill');
+        this.selectedFilesList = document.getElementById('selectedFilesList');
+        this.filesListContent = document.getElementById('filesListContent');
+        this.selectedFilesCount = document.getElementById('selectedFilesCount');
+        
+        this.selectedFiles = [];
         
         this.init();
     }
@@ -18,6 +23,7 @@ class AdminPanel {
     init() {
         this.setupDragDrop();
         this.setupFormSubmit();
+        this.setupClearButton();
         this.loadProducts();
         
         console.log('✅ Admin Panel initialized');
@@ -32,7 +38,7 @@ class AdminPanel {
         });
 
         this.videoFile.addEventListener('change', (e) => {
-            this.handleFileSelect(e.target.files[0]);
+            this.handleMultipleFiles(Array.from(e.target.files));
         });
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -55,72 +61,127 @@ class AdminPanel {
         });
 
         this.uploadBox.addEventListener('drop', (e) => {
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('video/')) {
-                this.videoFile.files = e.dataTransfer.files;
-                this.handleFileSelect(file);
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('video/'));
+            if (files.length > 0) {
+                this.handleMultipleFiles(files);
             } else {
-                this.showAlert('Please select a valid video file (MP4)', 'error');
+                this.showAlert('Please select valid video files (MP4)', 'error');
             }
         });
     }
 
-    handleFileSelect(file) {
-        if (file) {
-            const fileName = file.name;
-            const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-            this.uploadBox.innerHTML = `
-                <div class="upload-icon">✅</div>
-                <p><strong>${fileName}</strong></p>
-                <small>${fileSize} MB</small>
-            `;
-        }
+    handleMultipleFiles(files) {
+        if (files.length === 0) return;
+        
+        this.selectedFiles = files;
+        const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+        
+        // Update upload box
+        this.uploadBox.innerHTML = `
+            <div class="upload-icon">✅</div>
+            <p><strong>${files.length} video${files.length > 1 ? 's' : ''} selected</strong></p>
+            <small>Total: ${totalSizeMB} MB</small>
+        `;
+        
+        // Show files list
+        this.selectedFilesList.style.display = 'block';
+        this.selectedFilesCount.textContent = files.length;
+        this.filesListContent.innerHTML = files.map((file, index) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: white; border-radius: 5px; margin-bottom: 5px; font-size: 13px;">
+                <span>📹 ${file.name}</span>
+                <span style="color: #999;">${(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+            </div>
+        `).join('');
+    }
+    
+    setupClearButton() {
+        document.getElementById('clearFilesBtn').addEventListener('click', () => {
+            this.selectedFiles = [];
+            this.videoFile.value = '';
+            this.selectedFilesList.style.display = 'none';
+            this.resetUploadBox();
+        });
     }
 
     // ============================
-    // Form Submit
+    // Form Submit (Bulk Upload)
     // ============================
     setupFormSubmit() {
         this.uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            if (this.selectedFiles.length === 0) {
+                this.showAlert('⚠️ Please select at least one video', 'error');
+                return;
+            }
+            
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ מעלה...';
             
-            const formData = new FormData();
-            formData.append('video', this.videoFile.files[0]);
-            formData.append('title', document.getElementById('productTitle').value);
-            formData.append('description', document.getElementById('productDescription').value);
-            formData.append('price', document.getElementById('productPrice').value);
-            formData.append('link', document.getElementById('productLink').value);
-            formData.append('descriptionPosition', document.getElementById('descriptionPosition').value);
+            // Get form data
+            const title = document.getElementById('productTitle').value;
+            const description = document.getElementById('productDescription').value;
+            const price = document.getElementById('productPrice').value;
+            const link = document.getElementById('productLink').value;
 
             try {
                 this.progressBar.classList.add('show');
+                let successCount = 0;
+                let failCount = 0;
                 
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                // Upload each file sequentially
+                for (let i = 0; i < this.selectedFiles.length; i++) {
+                    const file = this.selectedFiles[i];
+                    const progress = ((i + 1) / this.selectedFiles.length) * 100;
+                    
+                    submitBtn.textContent = `⏳ Uploading ${i + 1}/${this.selectedFiles.length}...`;
+                    this.progressFill.style.width = `${progress}%`;
+                    
+                    const formData = new FormData();
+                    formData.append('video', file);
+                    formData.append('title', title);
+                    formData.append('description', description);
+                    formData.append('price', price);
+                    formData.append('link', link);
+                    formData.append('descriptionPosition', 'bottom');
 
-                const result = await response.json();
+                    try {
+                        const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                if (response.ok) {
-                    this.showAlert('✅ Product uploaded successfully!', 'success');
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            failCount++;
+                        }
+                    } catch (error) {
+                        failCount++;
+                        console.error(`Failed to upload ${file.name}:`, error);
+                    }
+                }
+                
+                // Show results
+                if (successCount > 0) {
+                    this.showAlert(`✅ Successfully uploaded ${successCount} product(s)!`, 'success');
                     this.uploadForm.reset();
                     this.resetUploadBox();
+                    this.selectedFiles = [];
+                    this.selectedFilesList.style.display = 'none';
                     this.loadProducts();
-                    this.progressFill.style.width = '100%';
-                    
-                    setTimeout(() => {
-                        this.progressBar.classList.remove('show');
-                        this.progressFill.style.width = '0%';
-                    }, 1000);
-                } else {
-                    throw new Error(result.error || 'Upload error');
                 }
+                
+                if (failCount > 0) {
+                    this.showAlert(`⚠️ ${failCount} product(s) failed to upload`, 'error');
+                }
+                
+                setTimeout(() => {
+                    this.progressBar.classList.remove('show');
+                    this.progressFill.style.width = '0%';
+                }, 1000);
             } catch (error) {
                 console.error('Upload error:', error);
                 this.showAlert('❌ Error: ' + error.message, 'error');
@@ -135,9 +196,9 @@ class AdminPanel {
     resetUploadBox() {
         this.uploadBox.innerHTML = `
             <div class="upload-icon">🎥</div>
-            <p><strong>גרור ושחרר וידאו כאן</strong></p>
-            <p>או</p>
-            <small>לחץ לבחירת קובץ (MP4, 9:16)</small>
+            <p><strong>Drag and drop videos here</strong></p>
+            <p>or</p>
+            <small>Click to select files (MP4, 9:16) - Multiple files supported</small>
         `;
     }
 

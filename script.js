@@ -83,7 +83,7 @@ class VideoShoppingApp {
     // ============================
     renderProducts() {
         this.slider.innerHTML = this.products.map((product, index) => `
-            <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}" data-position="${product.descriptionPosition || 'bottom'}">
+            <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}">
                 <div class="video-container">
                     <video class="product-video" playsinline webkit-playsinline loop>
                         <source src="${product.videoUrl}" type="video/mp4">
@@ -117,22 +117,22 @@ class VideoShoppingApp {
                         </div>
                     </div>
 
-                    <!-- Like/Dislike Overlay Indicators -->
-                    <div class="swipe-indicator like-indicator">
-                        <div class="indicator-icon">
+                    <!-- Fullscreen Swipe Overlays -->
+                    <div class="swipe-overlay like-overlay">
+                        <div class="swipe-overlay-content">
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
+                            <span>נשמר!</span>
                         </div>
-                        <span>נשמר!</span>
                     </div>
-                    <div class="swipe-indicator dislike-indicator">
-                        <div class="indicator-icon">
+                    <div class="swipe-overlay dislike-overlay">
+                        <div class="swipe-overlay-content">
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                             </svg>
+                            <span>לא מעניין</span>
                         </div>
-                        <span>לא מעניין</span>
                     </div>
                 </div>
 
@@ -150,8 +150,13 @@ class VideoShoppingApp {
                     </button>
                 </div>
                 
+                <!-- Video Progress Bar -->
+                <div class="video-progress-bar">
+                    <div class="video-progress-fill"></div>
+                </div>
+                
                 <!-- Product Info -->
-                <div class="product-info" data-position="${product.descriptionPosition || 'bottom'}">
+                <div class="product-info">
                     <h2 class="product-title">${product.title}</h2>
                     <p class="product-description">${product.description}</p>
                     <div class="product-price">${product.price}</div>
@@ -243,15 +248,15 @@ class VideoShoppingApp {
         
         const slide = this.slides[slideIndex];
         const productId = slide.getAttribute('data-product-id');
-        const likeIndicator = slide.querySelector('.like-indicator');
+        const likeOverlay = slide.querySelector('.like-overlay');
         
         this.isAnimating = true;
         
-        likeIndicator.classList.add('active');
+        likeOverlay.classList.add('active');
         this.addToFavorites(productId);
         
         setTimeout(() => {
-            likeIndicator.classList.remove('active');
+            likeOverlay.classList.remove('active');
             this.goToNextSlide();
         }, 600);
         
@@ -262,14 +267,14 @@ class VideoShoppingApp {
         if (this.isAnimating) return;
         
         const slide = this.slides[slideIndex];
-        const dislikeIndicator = slide.querySelector('.dislike-indicator');
+        const dislikeOverlay = slide.querySelector('.dislike-overlay');
         
         this.isAnimating = true;
         
-        dislikeIndicator.classList.add('active');
+        dislikeOverlay.classList.add('active');
         
         setTimeout(() => {
-            dislikeIndicator.classList.remove('active');
+            dislikeOverlay.classList.remove('active');
             this.goToNextSlide();
         }, 600);
         
@@ -277,8 +282,33 @@ class VideoShoppingApp {
     }
 
     goToNextSlide() {
+        // Endless loop: if reached end, restart with favorites or all products
         if (this.currentSlide >= this.totalSlides - 1) {
-            console.log('🎉 You viewed all products!');
+            console.log('🎉 You viewed all products! Restarting with favorites...');
+            
+            // Pause current video
+            const currentVideo = this.slides[this.currentSlide].querySelector('.product-video');
+            if (currentVideo) {
+                currentVideo.pause();
+                this.resetPlayButton(currentVideo);
+            }
+            
+            this.slides[this.currentSlide].classList.remove('active');
+            
+            // Restart from beginning
+            this.currentSlide = 0;
+            
+            // Use favorites if available, otherwise restart all products
+            if (this.favorites.length > 0) {
+                console.log(`♻️ Showing ${this.favorites.length} favorites again...`);
+                this.showAlert(`♻️ Showing your ${this.favorites.length} favorite product${this.favorites.length > 1 ? 's' : ''} again!`, 'success');
+                this.renderFavoritesAsSlides();
+            } else {
+                console.log('♻️ No favorites, restarting all products...');
+                this.slides[this.currentSlide].classList.add('active');
+                this.playCurrentVideo();
+            }
+            
             this.isAnimating = false;
             return;
         }
@@ -312,6 +342,48 @@ class VideoShoppingApp {
             });
         }, 500);
     }
+    
+    // Render favorites as slides for endless loop
+    renderFavoritesAsSlides() {
+        this.renderProducts();
+        this.slides = document.querySelectorAll('.product-slide');
+        this.videos = document.querySelectorAll('.product-video');
+        this.totalSlides = this.slides.length;
+        
+        this.setupVideoControls();
+        this.setupVolumeControls();
+        this.setupActionButtons();
+        
+        this.slides[this.currentSlide].classList.add('active');
+        this.playCurrentVideo();
+    }
+    
+    // Show alert helper
+    showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${type === 'success' ? '#4caf50' : '#2196f3'};
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
+        `;
+        alertDiv.textContent = message;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.style.animation = 'slideUp 0.3s ease';
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 3000);
+    }
 
     // ============================
     // Video Controls
@@ -321,6 +393,7 @@ class VideoShoppingApp {
             const video = slide.querySelector('.product-video');
             const overlay = slide.querySelector('.video-overlay');
             const playPauseBtn = slide.querySelector('.play-pause-btn');
+            const progressBar = slide.querySelector('.video-progress-fill');
 
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay || e.target === playPauseBtn || e.target.closest('.play-pause-btn')) {
@@ -343,6 +416,18 @@ class VideoShoppingApp {
 
             video.addEventListener('pause', () => {
                 video.removeAttribute('data-playing');
+            });
+            
+            // Update progress bar
+            video.addEventListener('timeupdate', () => {
+                if (video.duration) {
+                    const progress = (video.currentTime / video.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+            });
+            
+            video.addEventListener('loadedmetadata', () => {
+                progressBar.style.width = '0%';
             });
         });
     }
@@ -584,31 +669,78 @@ class VideoShoppingApp {
             `;
         } else {
             container.innerHTML = `
-                <div class="favorites-grid">
+                <div class="favorites-grid-new">
                     ${this.favorites.map(product => `
-                        <div class="favorite-item">
-                            <div class="favorite-item-header">
-                                <div>
-                                    <h3>${product.title}</h3>
-                                    <div class="favorite-item-price">${product.price}</div>
+                        <div class="favorite-card">
+                            <div class="favorite-video-preview">
+                                <video src="${product.videoUrl}" playsinline muted></video>
+                                <div class="favorite-overlay">
+                                    <svg viewBox="0 0 24 24" fill="white">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
                                 </div>
-                                <button class="remove-favorite-btn" data-product-id="${product.id}">
+                                <div class="favorite-title-overlay">${product.title}</div>
+                            </div>
+                            <div class="favorite-actions">
+                                <button class="favorite-action-btn share-btn" data-product-id="${product.id}" title="Share">
                                     <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                                    </svg>
+                                </button>
+                                <button class="favorite-action-btn buy-btn" onclick="window.open('${product.link}', '_blank')" title="Buy">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                                    </svg>
+                                </button>
+                                <button class="favorite-action-btn delete-btn" data-product-id="${product.id}" title="Remove">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                     </svg>
                                 </button>
                             </div>
-                            <a href="${product.link}" class="favorite-item-link" target="_blank">לרכישה</a>
                         </div>
                     `).join('')}
                 </div>
             `;
             
-            container.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+            // Delete button handlers
+            container.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const productId = btn.getAttribute('data-product-id');
                     this.removeFromFavorites(productId);
+                });
+            });
+            
+            // Share button handlers
+            container.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = btn.getAttribute('data-product-id');
+                    const product = this.favorites.find(p => p.id === productId);
+                    if (product && navigator.share) {
+                        navigator.share({
+                            title: product.title,
+                            text: product.description,
+                            url: product.link
+                        }).catch(() => {});
+                    } else {
+                        // Fallback: copy link
+                        navigator.clipboard.writeText(product.link);
+                        this.showAlert('🔗 Link copied to clipboard!', 'success');
+                    }
+                });
+            });
+            
+            // Play video on hover
+            container.querySelectorAll('.favorite-video-preview').forEach(preview => {
+                const video = preview.querySelector('video');
+                preview.addEventListener('mouseenter', () => {
+                    video.play().catch(() => {});
+                });
+                preview.addEventListener('mouseleave', () => {
+                    video.pause();
+                    video.currentTime = 0;
                 });
             });
         }

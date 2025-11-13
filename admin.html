@@ -366,11 +366,20 @@
                     <!-- Video Upload -->
                     <div class="upload-box" id="uploadBox">
                         <div class="upload-icon">🎥</div>
-                        <p><strong>Drag and drop video here</strong></p>
+                        <p><strong>Drag and drop videos here</strong></p>
                         <p>or</p>
-                        <small>Click to select file (MP4, 9:16)</small>
+                        <small>Click to select files (MP4, 9:16) - Multiple files supported</small>
                     </div>
-                    <input type="file" id="videoFile" accept="video/mp4,video/quicktime" required>
+                    <input type="file" id="videoFile" accept="video/mp4,video/quicktime" multiple required>
+                    
+                    <!-- Selected Files List -->
+                    <div id="selectedFilesList" style="display: none; margin: 15px 0; padding: 15px; background: #f8f9ff; border-radius: 10px; max-height: 200px; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong style="color: #667eea;">📦 Selected Videos (<span id="selectedFilesCount">0</span>)</strong>
+                            <button type="button" id="clearFilesBtn" style="background: #ff4757; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 12px;">Clear All</button>
+                        </div>
+                        <div id="filesListContent"></div>
+                    </div>
                     
                     <!-- Progress Bar -->
                     <div class="progress-bar" id="progressBar">
@@ -398,17 +407,8 @@
                         <input type="url" id="productLink" placeholder="https://example.com/product" required>
                     </div>
 
-                    <div class="form-group">
-                        <label>📍 Description Position</label>
-                        <select id="descriptionPosition" style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; cursor: pointer;">
-                            <option value="bottom" selected>Bottom (default)</option>
-                            <option value="top">Top (high position)</option>
-                        </select>
-                        <small style="color: #999; font-size: 12px; margin-top: 5px; display: block;">Choose position to avoid overlapping video subtitles</small>
-                    </div>
-
                     <button type="submit" class="submit-btn" id="submitBtn">
-                        ✨ Upload Product
+                        ✨ Upload Products
                     </button>
                 </form>
             </div>
