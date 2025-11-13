@@ -73,8 +73,8 @@ class AdminPanel {
     handleMultipleFiles(files) {
         if (files.length === 0) return;
         
-        this.selectedFiles = files;
-        const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+        this.selectedFiles = Array.from(files);
+        const totalSize = this.selectedFiles.reduce((sum, f) => sum + f.size, 0);
         const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
         
         // Update upload box
@@ -84,13 +84,63 @@ class AdminPanel {
             <small>Total: ${totalSizeMB} MB</small>
         `;
         
-        // Show files list
+        // Show files list with individual input fields
         this.selectedFilesList.style.display = 'block';
         this.selectedFilesCount.textContent = files.length;
-        this.filesListContent.innerHTML = files.map((file, index) => `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: white; border-radius: 5px; margin-bottom: 5px; font-size: 13px;">
-                <span>📹 ${file.name}</span>
-                <span style="color: #999;">${(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+        this.filesListContent.innerHTML = this.selectedFiles.map((file, index) => `
+            <div class="file-card" style="background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                    <div>
+                        <strong style="color: #667eea;">Video ${index + 1}</strong>
+                        <div style="font-size: 13px; color: #999; margin-top: 3px;">📹 ${file.name}</div>
+                    </div>
+                    <span style="background: #f0f2ff; color: #667eea; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">${(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 13px;">🏷️ Product Name</label>
+                    <input type="text" 
+                           class="product-field" 
+                           data-index="${index}" 
+                           data-field="title" 
+                           placeholder="Example: Home Ice Cream Maker" 
+                           style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                           required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 13px;">📝 Description</label>
+                    <textarea class="product-field" 
+                              data-index="${index}" 
+                              data-field="description" 
+                              placeholder="Describe the product..." 
+                              style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; min-height: 70px; resize: vertical;"
+                              required></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label style="display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 13px;">💰 Price</label>
+                        <input type="text" 
+                               class="product-field" 
+                               data-index="${index}" 
+                               data-field="price" 
+                               placeholder="$299" 
+                               style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 13px;">🔗 Link</label>
+                        <input type="url" 
+                               class="product-field" 
+                               data-index="${index}" 
+                               data-field="link" 
+                               placeholder="https://..." 
+                               style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                               required>
+                    </div>
+                </div>
             </div>
         `).join('');
     }
@@ -105,7 +155,7 @@ class AdminPanel {
     }
 
     // ============================
-    // Form Submit (Bulk Upload)
+    // Form Submit (Bulk Upload with Individual Data)
     // ============================
     setupFormSubmit() {
         this.uploadForm.addEventListener('submit', async (e) => {
@@ -116,35 +166,63 @@ class AdminPanel {
                 return;
             }
             
+            // Collect data for each product
+            const productsData = [];
+            let hasEmptyFields = false;
+            
+            for (let i = 0; i < this.selectedFiles.length; i++) {
+                const titleInput = document.querySelector(`input[data-index="${i}"][data-field="title"]`);
+                const descInput = document.querySelector(`textarea[data-index="${i}"][data-field="description"]`);
+                const priceInput = document.querySelector(`input[data-index="${i}"][data-field="price"]`);
+                const linkInput = document.querySelector(`input[data-index="${i}"][data-field="link"]`);
+                
+                if (!titleInput.value || !descInput.value || !priceInput.value || !linkInput.value) {
+                    hasEmptyFields = true;
+                    // Highlight empty card
+                    titleInput.closest('.file-card').style.border = '2px solid #ff4757';
+                    setTimeout(() => {
+                        titleInput.closest('.file-card').style.border = '2px solid #e0e0e0';
+                    }, 2000);
+                    break;
+                }
+                
+                productsData.push({
+                    file: this.selectedFiles[i],
+                    title: titleInput.value,
+                    description: descInput.value,
+                    price: priceInput.value,
+                    link: linkInput.value
+                });
+            }
+            
+            if (hasEmptyFields) {
+                this.showAlert('⚠️ Please fill in all fields for each product', 'error');
+                return;
+            }
+            
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            
-            // Get form data
-            const title = document.getElementById('productTitle').value;
-            const description = document.getElementById('productDescription').value;
-            const price = document.getElementById('productPrice').value;
-            const link = document.getElementById('productLink').value;
 
             try {
                 this.progressBar.classList.add('show');
                 let successCount = 0;
                 let failCount = 0;
                 
-                // Upload each file sequentially
-                for (let i = 0; i < this.selectedFiles.length; i++) {
-                    const file = this.selectedFiles[i];
-                    const progress = ((i + 1) / this.selectedFiles.length) * 100;
+                // Upload each file with its individual data
+                for (let i = 0; i < productsData.length; i++) {
+                    const productData = productsData[i];
+                    const progress = ((i + 1) / productsData.length) * 100;
                     
-                    submitBtn.textContent = `⏳ Uploading ${i + 1}/${this.selectedFiles.length}...`;
+                    submitBtn.textContent = `⏳ Uploading ${i + 1}/${productsData.length}...`;
                     this.progressFill.style.width = `${progress}%`;
                     
                     const formData = new FormData();
-                    formData.append('video', file);
-                    formData.append('title', title);
-                    formData.append('description', description);
-                    formData.append('price', price);
-                    formData.append('link', link);
+                    formData.append('video', productData.file);
+                    formData.append('title', productData.title);
+                    formData.append('description', productData.description);
+                    formData.append('price', productData.price);
+                    formData.append('link', productData.link);
                     formData.append('descriptionPosition', 'bottom');
 
                     try {
@@ -155,12 +233,14 @@ class AdminPanel {
 
                         if (response.ok) {
                             successCount++;
+                            console.log(`✅ Uploaded: ${productData.title}`);
                         } else {
                             failCount++;
+                            console.error(`❌ Failed: ${productData.title}`);
                         }
                     } catch (error) {
                         failCount++;
-                        console.error(`Failed to upload ${file.name}:`, error);
+                        console.error(`Failed to upload ${productData.file.name}:`, error);
                     }
                 }
                 

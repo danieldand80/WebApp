@@ -372,39 +372,18 @@
                     </div>
                     <input type="file" id="videoFile" accept="video/mp4,video/quicktime" multiple required>
                     
-                    <!-- Selected Files List -->
-                    <div id="selectedFilesList" style="display: none; margin: 15px 0; padding: 15px; background: #f8f9ff; border-radius: 10px; max-height: 200px; overflow-y: auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <strong style="color: #667eea;">📦 Selected Videos (<span id="selectedFilesCount">0</span>)</strong>
-                            <button type="button" id="clearFilesBtn" style="background: #ff4757; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 12px;">Clear All</button>
+                    <!-- Selected Files with Individual Fields -->
+                    <div id="selectedFilesList" style="display: none; margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <strong style="color: #667eea; font-size: 18px;">📦 Selected Videos (<span id="selectedFilesCount">0</span>)</strong>
+                            <button type="button" id="clearFilesBtn" style="background: #ff4757; color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">Clear All</button>
                         </div>
-                        <div id="filesListContent"></div>
+                        <div id="filesListContent" style="max-height: 500px; overflow-y: auto;"></div>
                     </div>
                     
                     <!-- Progress Bar -->
                     <div class="progress-bar" id="progressBar">
                         <div class="progress-fill" id="progressFill"></div>
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="form-group">
-                        <label>🏷️ Product Name</label>
-                        <input type="text" id="productTitle" placeholder="Example: Home Ice Cream Maker" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>📝 Product Description</label>
-                        <textarea id="productDescription" placeholder="Describe the product briefly..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>💰 Price</label>
-                        <input type="text" id="productPrice" placeholder="$299" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>🔗 Purchase Link</label>
-                        <input type="url" id="productLink" placeholder="https://example.com/product" required>
                     </div>
 
                     <button type="submit" class="submit-btn" id="submitBtn">
