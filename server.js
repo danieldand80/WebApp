@@ -64,21 +64,28 @@ const CLOUDINARY_PRODUCTS_ID = 'database/products.json';
 // Upload products.json to Cloudinary
 async function uploadProductsToCloudinary(products) {
     try {
+        console.log(`📤 Preparing to upload ${products.length} products to Cloudinary...`);
         const jsonString = JSON.stringify(products, null, 2);
+        const jsonSize = Buffer.from(jsonString).length;
+        console.log(`📦 JSON size: ${(jsonSize / 1024).toFixed(2)} KB`);
         
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     resource_type: 'raw',
                     public_id: CLOUDINARY_PRODUCTS_ID,
-                    overwrite: true
+                    overwrite: true,
+                    invalidate: true // Clear CDN cache
                 },
                 (error, result) => {
                     if (error) {
                         console.error('❌ Failed to upload products.json to Cloudinary:', error.message);
+                        console.error('Error details:', error);
                         reject(error);
                     } else {
-                        console.log('☁️ Products synced to Cloudinary');
+                        console.log('✅ Products.json uploaded to Cloudinary successfully!');
+                        console.log(`📍 URL: ${result.secure_url}`);
+                        console.log(`🆔 Public ID: ${result.public_id}`);
                         resolve(result);
                     }
                 }
@@ -181,10 +188,20 @@ async function writeProducts(products) {
         console.log(`💾 Saved ${products.length} products locally`);
         
         // Immediately sync to Cloudinary (single source of truth)
-        await uploadProductsToCloudinary(products);
-        console.log(`☁️ Auto-synced ${products.length} products to Cloudinary`);
+        console.log(`☁️ Syncing ${products.length} products to Cloudinary...`);
+        const result = await uploadProductsToCloudinary(products);
+        console.log(`✅ Successfully synced to Cloudinary:`, result?.secure_url || 'uploaded');
+        
+        // Verify the upload
+        const verification = await downloadProductsFromCloudinary();
+        console.log(`🔍 Verification: Cloudinary now has ${verification.length} products`);
+        
+        if (verification.length !== products.length) {
+            console.error(`⚠️ SYNC MISMATCH! Local: ${products.length}, Cloudinary: ${verification.length}`);
+        }
     } catch (error) {
         console.error('❌ Error saving products:', error);
+        console.error('Error stack:', error.stack);
         throw error;
     }
 }
@@ -304,26 +321,43 @@ app.delete('/api/products/:id', async (req, res) => {
         }
 
         const product = products[productIndex];
+        console.log(`🗑️ Deleting product: ${product.title}`);
+        console.log(`🗑️ Video public ID: ${product.videoPublicId}`);
         
-        // Delete video from Cloudinary
+        // Delete video from Cloudinary FIRST
         if (product.videoPublicId) {
             try {
-                await cloudinary.uploader.destroy(product.videoPublicId, { resource_type: 'video' });
-                console.log(`🗑️ Deleted video from Cloudinary: ${product.videoPublicId}`);
+                const deleteResult = await cloudinary.uploader.destroy(product.videoPublicId, { 
+                    resource_type: 'video',
+                    invalidate: true
+                });
+                console.log(`✅ Cloudinary delete result:`, deleteResult);
+                
+                if (deleteResult.result === 'ok' || deleteResult.result === 'not found') {
+                    console.log(`✅ Video deleted from Cloudinary: ${product.videoPublicId}`);
+                } else {
+                    console.warn(`⚠️ Unexpected delete result: ${deleteResult.result}`);
+                }
             } catch (error) {
-                console.warn('Failed to delete video from Cloudinary:', error.message);
+                console.error('❌ Failed to delete video from Cloudinary:', error);
+                // Continue anyway to delete from database
             }
+        } else {
+            console.warn('⚠️ No videoPublicId found for product');
         }
 
         // Remove from products array
         products.splice(productIndex, 1);
+        console.log(`💾 Updating products list (${products.length} remaining)`);
+        
+        // Save and sync to Cloudinary
         await writeProducts(products);
 
-        console.log(`✅ Product deleted: ${product.title}`);
-        res.json({ success: true });
+        console.log(`✅ Product deleted successfully: ${product.title}`);
+        res.json({ success: true, message: 'Product and video deleted' });
     } catch (error) {
-        console.error('Delete error:', error);
-        res.status(500).json({ error: 'Failed to delete product' });
+        console.error('❌ Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete product', details: error.message });
     }
 });
 
