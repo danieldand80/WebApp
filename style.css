@@ -183,7 +183,7 @@ body {
     height: 4px;
     background: rgba(255, 255, 255, 0.3);
     z-index: 25;
-    overflow: hidden;
+    overflow: visible; /* Allow thumb to overflow */
     cursor: pointer;
     direction: ltr; /* Force left-to-right */
     transition: height 0.2s ease;
@@ -203,23 +203,30 @@ body {
     position: relative;
 }
 
+/* Progress Thumb (Draggable Circle) */
 .video-progress-fill::after {
     content: '';
     position: absolute;
-    right: 0;
+    right: -8px; /* Center the circle on the edge */
     top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
+    transform: translateY(-50%) scale(0);
+    width: 16px;
+    height: 16px;
     background: white;
     border-radius: 50%;
     opacity: 0;
-    transition: opacity 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .video-progress-bar:hover .video-progress-fill::after {
     opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+/* Make thumb bigger on direct hover */
+.video-progress-bar:hover .video-progress-fill::after:hover {
+    transform: translateY(-50%) scale(1.3);
 }
 
 /* ============================
