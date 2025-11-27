@@ -9,7 +9,15 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build:web": "copyfiles -f index.html style.css script.js admin.html admin.js login.html manifest.json Favicon.png public",
+    "build:ios": "npm run build:web && npx cap sync ios && npx cap open ios",
+    "build:android": "npm run build:web && npx cap sync android && npx cap open android",
+    "cap:init": "npx cap init",
+    "cap:add:ios": "npx cap add ios",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npm run build:web && npx cap sync",
+    "cap:update": "npx cap update"
   },
   "keywords": [
     "video",
@@ -21,6 +29,14 @@
   "author": "Liron Shop",
   "license": "MIT",
   "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/keyboard": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -28,6 +44,8 @@
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "copyfiles": "^2.4.1",
     "nodemon": "^3.0.1"
   }
 }

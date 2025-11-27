@@ -31,4 +31,14 @@ products.json
 # Build files
 dist/
 build/
+public/
+
+# Capacitor - Mobile platforms (generated, don't commit)
+android/
+ios/
+.capacitor/
+
+# Capacitor plugins (auto-generated)
+capacitor-cordova-android-plugins/
+capacitor-cordova-ios-plugins/
 

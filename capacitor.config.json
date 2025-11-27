@@ -1,0 +1,36 @@
+{
+  "appId": "com.lironshop.app",
+  "appName": "Liron Shop",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "hostname": "app.lironshop.com"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#FF385C",
+      "showSpinner": true,
+      "androidSpinnerStyle": "large",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#ffffff"
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#FF385C"
+    },
+    "Keyboard": {
+      "resize": "native",
+      "style": "dark"
+    }
+  },
+  "ios": {
+    "contentInset": "always"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true
+  }
+}
+
