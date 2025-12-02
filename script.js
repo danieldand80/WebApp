@@ -82,10 +82,14 @@ class VideoShoppingApp {
     // Render Products Dynamically
     // ============================
     renderProducts() {
-        this.slider.innerHTML = this.products.map((product, index) => `
+        this.slider.innerHTML = this.products.map((product, index) => {
+            // Generate Cloudinary thumbnail for instant preview
+            const thumbnailUrl = product.videoUrl.replace('/video/upload/', '/video/upload/f_jpg,q_auto,w_600/');
+            
+            return `
             <div class="product-slide ${index === 0 ? 'active' : ''}" data-index="${index}" data-product-id="${product.id}">
                 <div class="video-container">
-                    <video class="product-video" playsinline webkit-playsinline loop>
+                    <video class="product-video" poster="${thumbnailUrl}" playsinline webkit-playsinline loop preload="metadata">
                         <source src="${product.videoUrl}" type="video/mp4">
                         הדפדפן שלך לא תומך בוידאו
                     </video>
@@ -168,7 +172,8 @@ class VideoShoppingApp {
                     </a>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     // ============================
