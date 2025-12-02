@@ -3,9 +3,10 @@
   "appName": "Liron Shop",
   "webDir": "public",
   "server": {
+    "url": "https://liron-video-shop-production-149d.up.railway.app",
+    "cleartext": false,
     "androidScheme": "https",
-    "iosScheme": "https",
-    "hostname": "app.lironshop.com"
+    "iosScheme": "https"
   },
   "plugins": {
     "SplashScreen": {
@@ -33,4 +34,5 @@
     "captureInput": true
   }
 }
+
 

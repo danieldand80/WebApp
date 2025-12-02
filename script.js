@@ -684,10 +684,14 @@ class VideoShoppingApp {
         } else {
             container.innerHTML = `
                 <div class="favorites-grid-new">
-                    ${this.favorites.map(product => `
+                    ${this.favorites.map(product => {
+                        // Generate Cloudinary thumbnail from video URL
+                        const thumbnailUrl = product.videoUrl.replace('/video/upload/', '/video/upload/f_jpg,q_auto,w_400/');
+                        
+                        return `
                         <div class="favorite-card">
                             <div class="favorite-video-preview">
-                                <video src="${product.videoUrl}" playsinline muted></video>
+                                <video src="${product.videoUrl}" poster="${thumbnailUrl}" playsinline muted preload="metadata"></video>
                                 <div class="favorite-overlay">
                                     <svg viewBox="0 0 24 24" fill="white">
                                         <path d="M8 5v14l11-7z"/>
@@ -713,7 +717,8 @@ class VideoShoppingApp {
                                 </button>
                             </div>
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             `;
             
